@@ -16,13 +16,13 @@ int main()
     //string format;
     string subchunk_id_1;
     int32_t subchunk_size_1;
-    int32_t audio_format;
-    int32_t num_channels;
+    int16_t audio_format;
+    int16_t num_channels;
     int32_t sample_rate;
     int32_t byte_rate;
     int32_t block_align;
     int32_t bits_per_sample;
-    int32_t extra_param_size;
+    int16_t extra_param_size;
     //tring subchunk_id_2;
     int32_t subchunk_size_2;
     vector<int32_t> data;
@@ -44,17 +44,10 @@ int main()
     sound.seekg(20, ios::cur);
     //sound.read((char*)&subchunk_id_2, sizeof(string));
     sound.read((char*)&subchunk_size_2, sizeof(int32_t));
-    while (!sound.eof()) {
-        sound.read((char*)&sample, sizeof(int32_t));
-        data.push_back(sample);
-    }
     sound.close();
     cout <<  chunk_size << "\n";
     cout << subchunk_size_1 << "\n" << audio_format << "\n" << num_channels << "\n" << sample_rate << "\n";
     cout << byte_rate << "\n" << block_align << "\n" << subchunk_size_2 << "\n";
-    for (int i = 0; i < data.size(); i++) {
-        cout << data[i] << "\n";
-    }
 
     
     return 0;
