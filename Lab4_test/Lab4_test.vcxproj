@@ -141,6 +141,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Lab4_test.cpp" />
+    <ClCompile Include="TrackWave.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TrackWave.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
