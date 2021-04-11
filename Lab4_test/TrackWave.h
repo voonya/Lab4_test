@@ -7,6 +7,7 @@ using namespace std;
 
 class TrackWave
 {
+    float scale;
     string path_to_file;
     int32_t chunkId;   // Завжди містить значення 0x52494646 (літери "RIFF")
     int32_t chunkSize; // 36 + розмір другого підрозділу в байтах
@@ -24,17 +25,21 @@ class TrackWave
     int32_t subchunk2Id;   // 0x64617461 – літери "data"
     int32_t subchunk2Size; // == NumSamples * NumChannels * BitsPerSample/8, кількість байтів аудіоданих
     vector<int8_t> data_8;         // семпли 8bit
-    vector<int16_t> data_16;         // семпли 8bit
+    vector<int16_t> data_16;         // семпли 16bit
     void set_data();
     void set_RIFF_header(ifstream& track);
     void set_subchunk_1(ifstream& track);
     void set_subchunk_2(ifstream& track);
+    string get_path();
 public:
-    TrackWave(string path_to_file) : path_to_file(path_to_file) {
+    TrackWave(string name_file,float scale): scale(scale){
+        path_to_file = get_path() + "/" + name_file + ".wav";
         set_data();
     }
-    void refactor_track(float scale_size);
+    void refactor_track();
     void write_track(string new_file_path);
     void out_info();
 };
+int16_t interpolate(int32_t x0, int32_t x1, int16_t y0, int16_t y1, int32_t x);
+
 

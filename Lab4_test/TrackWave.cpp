@@ -1,5 +1,6 @@
 #include "TrackWave.h"
-
+#include <filesystem>
+#define fs filesystem
 void TrackWave::set_data() {
 	ifstream track(path_to_file, ios::binary);
 	if (track.is_open()) {
@@ -50,14 +51,47 @@ void TrackWave::set_subchunk_2(ifstream& track) {
 		cout << "\n You are stupid programmer! I dont have case for " << bitsPerSample / 8 << " bytes. :/\n";
 	}
 }
-void TrackWave::refactor_track(float scale_size) {
 
+void TrackWave::refactor_track() {
+	chunkSize += subchunk2Size * (scale - 1);
+	subchunk2Size *= scale;
+	if (bitsPerSample == 8) {
+		vector<int8_t> new_data;
+		for (int i = 0; i < data_8.size(); i++) {
+			for (int j = 0; j < scale; j++) {
+				new_data.push_back(data_8[i]);
+			}
+		}
+		data_8 = new_data;
+	}
+	else if (bitsPerSample == 16) {
+		vector<int16_t> new_data;
+		for (int i = 0; i < data_16.size(); i++) {
+			for (int j = 0; j < scale; j++) {
+				new_data.push_back(data_16[i]);
+			}
+		}
+		data_16 = new_data;
+	}
 }
-
-void TrackWave::write_track(string new_file_path) {
-	ofstream out("shoto_2.wav",ios::binary);
-	chunkSize += subchunk2Size;
-	subchunk2Size *= 2;
+/*
+void TrackWave::refactor_track() {
+	chunkSize += subchunk2Size- 1;
+	subchunk2Size += subchunk2Size -1 ;
+	vector<int16_t> new_data(subchunk2Size);
+	for (int i = 0; i < data_16.size() - 2; i++) {
+		new_data[i] = data_16[i];
+		new_data[i+2] = interpolate(1,2,data_16[i], data_16[i+2],scale);
+		new_data[i + 4] = data_16[i + 2];
+	}
+	data_16 = new_data;
+}*/
+string TrackWave::get_path() {
+	return fs::current_path().string();
+}
+void TrackWave::write_track(string name_file) {
+	string path = get_path()  + "/" + name_file + ".wav";
+	ofstream out(path,ios::binary);
 	out.write((char*)&chunkId, sizeof(chunkId));
 	out.write((char*)&chunkSize, sizeof(chunkSize));
 	out.write((char*)&format, sizeof(format));
@@ -73,8 +107,11 @@ void TrackWave::write_track(string new_file_path) {
 	out.write((char*)&subchunk2Size, sizeof(subchunk2Size));
 	for (int i = 0; i < data_16.size(); i++) {
 		out.write((char*)&data_16[i], bitsPerSample / 8);
-		out.write((char*)&data_16[i], bitsPerSample / 8);
 	}
+	/*
+	for (int i = 0; i < data_8.size(); i++) {
+		out.write((char*)&data_8[i], bitsPerSample / 8);
+	}*/
 	out.close();
 }
 
@@ -94,4 +131,8 @@ void TrackWave::out_info() {
 	cout << "subchunk2Size: " << subchunk2Size << endl;
 	cout << "data_8.size(): " << data_8.size() << endl;
 	cout << "data_16.size(): " << data_16.size() << endl;
+}
+
+int16_t interpolate(int32_t x0, int32_t x1, int16_t y0, int16_t y1, int32_t x) {
+	return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
 }
